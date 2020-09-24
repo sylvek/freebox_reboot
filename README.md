@@ -11,6 +11,12 @@ Avec ce script, la freebox sera rebooté à chaque perte de connexion internet.
 > docker build . -t reboot_freebox
 ```
 
+## Comment télécharger une image déjà construite ?
+
+```
+> docker pull ghcr.io/sylvek/freebox_reboot:latest
+```
+
 ## Comment rebooter la freebox ?
 
 ### Premier lancement
@@ -51,5 +57,5 @@ avec `reboot_freebox.sh`
 
 ```
 #!/bin/bash
-ping -c 1 google.com &> /dev/null || docker run --rm -ti -v $HOME/reboot_freebox:/root/.reboot_freebox reboot_freebox
+ping -c 1 google.com &> /dev/null || docker run --rm -ti -v $HOME/reboot_freebox:/root/.reboot_freebox ghcr.io/sylvek/freebox_reboot
 ```
