@@ -40,11 +40,12 @@ request_a_session() {
     SESSION_TOKEN=$(echo $RESULT | jq -r .result.session_token)
 }
 
-request_reboot() {
+request_reboot_and_exit() {
     echo "Tentative de reboot."
     RESULT=$(http $HTTPIE_OPTS POST $FREEBOX_URL/api/v4/system/reboot X-Fbx-App-Auth:$SESSION_TOKEN | jq -r .success)
-    if $RESULT; then
+    if [ $RESULT -eq 0 ]; then
         echo "La freebox reboot."
+        exit 0
     else
         exit 100
     fi 
@@ -54,7 +55,7 @@ request_reboot() {
 if [[ -f "$HOME/.reboot_freebox" ]]; then
     source $HOME/.reboot_freebox
     request_a_session
-    request_reboot
+    request_reboot_and_exit
 else
     request_app_token
     check_app_status
