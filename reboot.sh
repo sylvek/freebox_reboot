@@ -1,6 +1,7 @@
 #!/bin/bash
 
-FREEBOX_URL="http://212.27.38.253"
+FREEBOX_URL="https://212.27.38.253"
+HTTPIE_OPTS="--verify no"
 APP_ID="fr.freebox.reboot"
 APP_NAME="reboot"
 APP_VERSION="0.0.1"
@@ -9,7 +10,7 @@ APP_STATUS='pending'
 SESSION_TOKEN=
 
 request_app_token() {
-    APP_RESULT=$(http POST $FREEBOX_URL/api/v4/login/authorize/ app_id="$APP_ID" app_name="$APP_NAME" app_version="$APP_VERSION" device_name="$(hostname)")
+    APP_RESULT=$(http $HTTPIE_OPTS POST $FREEBOX_URL/api/v4/login/authorize/ app_id="$APP_ID" app_name="$APP_NAME" app_version="$APP_VERSION" device_name="$(hostname)")
     APP_TOKEN=$(echo $APP_RESULT | jq -r .result.app_token)
     TRACK_ID=$(echo $APP_RESULT | jq -r .result.track_id)
 }
@@ -22,7 +23,7 @@ check_app_status() {
 
     while [[ "$APP_STATUS" == 'pending' ]]; do
         sleep 5
-        APP_STATUS=$(http $FREEBOX_URL/api/v4/login/authorize/$TRACK_ID | jq -r .result.status)
+        APP_STATUS=$(http $HTTPIE_OPTS $FREEBOX_URL/api/v4/login/authorize/$TRACK_ID | jq -r .result.status)
         echo "status => $APP_STATUS"
     done
 }
@@ -33,7 +34,7 @@ store_app_token() {
 }
 
 request_a_session() {
-    CHALLENGE=$(http $FREEBOX_URL/api/v4/login | jq -r .result.challenge)
+    CHALLENGE=$(http $HTTPIE_OPTS $FREEBOX_URL/api/v4/login | jq -r .result.challenge)
     PASSWORD=$(echo -n $CHALLENGE | openssl sha1 -hmac $APP_TOKEN -binary | xxd -p)
     RESULT=$(http $FREEBOX_URL/api/v4/login/session app_id="$APP_ID" password="$PASSWORD")
     SESSION_TOKEN=$(echo $RESULT | jq -r .result.session_token)
@@ -41,7 +42,7 @@ request_a_session() {
 
 request_reboot() {
     echo "Tentative de reboot."
-    RESULT=$(http POST $FREEBOX_URL/api/v4/system/reboot X-Fbx-App-Auth:$SESSION_TOKEN | jq -r .success)
+    RESULT=$(http $HTTPIE_OPTS POST $FREEBOX_URL/api/v4/system/reboot X-Fbx-App-Auth:$SESSION_TOKEN | jq -r .success)
     if $RESULT; then
         echo "La freebox reboot."
     else
