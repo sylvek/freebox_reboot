@@ -17,8 +17,10 @@ request_app_token() {
 
 check_app_status() {
     echo "Avez-vous validé depuis la freebox l'autorisation (flèche de droite)? - appuyer sur une touche pour continuer."
+    echo "Premi il tasto sulla Iliadbox per autorizzare (freccia a destra) - premi invio per continuare."
     read
     echo "Penser à donner le droit de 'Modification des réglages de la Freebox' pour permettre le reboot - appuyer sur une touche pour continuer."
+    echo "Dai il permesso di 'Modifica delle impostazioni della iliadbox' per consentire il reboot - premi invio per continuare."
     read
 
     while [[ "$APP_STATUS" == 'pending' ]]; do
@@ -48,7 +50,7 @@ request_reboot_and_exit() {
         exit 0
     else
         exit 100
-    fi 
+    fi
 }
 
 ### main
@@ -61,5 +63,6 @@ else
     check_app_status
     store_app_token
     echo "Initialisation terminée, relancer le script pour rebooter la freebox."
+    echo "Inizializzazione completa, rilancia lo script per riavviare la iliadbox."
 fi
 
