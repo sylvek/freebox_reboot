@@ -35,15 +35,15 @@ store_app_token() {
 
 request_a_session() {
     CHALLENGE=$(http $HTTPIE_OPTS $FREEBOX_URL/api/v4/login | jq -r .result.challenge)
-    PASSWORD=$(echo -n $CHALLENGE | openssl sha1 -hmac $APP_TOKEN -binary | xxd -p)
-    RESULT=$(http $FREEBOX_URL/api/v4/login/session app_id="$APP_ID" password="$PASSWORD")
+    PASSWORD=$(echo -n $CHALLENGE | openssl dgst -sha1 -hmac "$APP_TOKEN" -binary | xxd -p)
+    RESULT=$(http $HTTPIE_OPTS $FREEBOX_URL/api/v4/login/session app_id="$APP_ID" password="$PASSWORD")
     SESSION_TOKEN=$(echo $RESULT | jq -r .result.session_token)
 }
 
 request_reboot_and_exit() {
     echo "Tentative de reboot."
     RESULT=$(http $HTTPIE_OPTS POST $FREEBOX_URL/api/v4/system/reboot X-Fbx-App-Auth:$SESSION_TOKEN | jq -r .success)
-    if [ $RESULT -eq 0 ]; then
+    if [[ $RESULT == 0 ]]; then
         echo "La freebox reboot."
         exit 0
     else
@@ -62,3 +62,4 @@ else
     store_app_token
     echo "Initialisation terminée, relancer le script pour rebooter la freebox."
 fi
+
