@@ -17,8 +17,10 @@ request_app_token() {
 
 check_app_status() {
     echo "Avez-vous validé depuis la freebox l'autorisation (flèche de droite)? - appuyer sur une touche pour continuer."
+    echo "Premi il tasto sulla Iliadbox per autorizzare (freccia a destra) - premi invio per continuare."
     read
     echo "Penser à donner le droit de 'Modification des réglages de la Freebox' pour permettre le reboot - appuyer sur une touche pour continuer."
+    echo "Dai il permesso di 'Modifica delle impostazioni della iliadbox' per consentire il reboot - premi invio per continuare."
     read
 
     while [[ "$APP_STATUS" == 'pending' ]]; do
@@ -35,20 +37,20 @@ store_app_token() {
 
 request_a_session() {
     CHALLENGE=$(http $HTTPIE_OPTS $FREEBOX_URL/api/v4/login | jq -r .result.challenge)
-    PASSWORD=$(echo -n $CHALLENGE | openssl sha1 -hmac $APP_TOKEN -binary | xxd -p)
-    RESULT=$(http $FREEBOX_URL/api/v4/login/session app_id="$APP_ID" password="$PASSWORD")
+    PASSWORD=$(echo -n $CHALLENGE | openssl dgst -sha1 -hmac "$APP_TOKEN" -binary | xxd -p)
+    RESULT=$(http $HTTPIE_OPTS $FREEBOX_URL/api/v4/login/session app_id="$APP_ID" password="$PASSWORD")
     SESSION_TOKEN=$(echo $RESULT | jq -r .result.session_token)
 }
 
 request_reboot_and_exit() {
     echo "Tentative de reboot."
     RESULT=$(http $HTTPIE_OPTS POST $FREEBOX_URL/api/v4/system/reboot X-Fbx-App-Auth:$SESSION_TOKEN | jq -r .success)
-    if [ $RESULT -eq 0 ]; then
+    if [[ $RESULT == 0 ]]; then
         echo "La freebox reboot."
         exit 0
     else
         exit 100
-    fi 
+    fi
 }
 
 ### main
@@ -61,4 +63,6 @@ else
     check_app_status
     store_app_token
     echo "Initialisation terminée, relancer le script pour rebooter la freebox."
+    echo "Inizializzazione completa, rilancia lo script per riavviare la iliadbox."
 fi
+
