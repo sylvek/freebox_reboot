@@ -5,6 +5,10 @@ Il faut la rebooter pour retrouver une connexion viable.
 
 Avec ce script, la freebox sera rebooté à chaque perte de connexion internet.
 
+## Iliadbox
+
+Lo script funziona anche con la iliadbox in Italia / Ce script fonctionne aussi avec la iliadbox en Italie.
+
 ## Comment construire ?
 
 ```
